@@ -29,6 +29,16 @@ jobs:
     environment: producao
     
     steps:
+      # 0. Valida se as secrets foram preenchidas no repositório
+      - name: 🔒 Validar Secrets do Ambiente
+        run: |
+          if [ -z "${{ secrets.FTP_SERVER }}" ] || [ -z "${{ secrets.FTP_USERNAME }}" ] || [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
+            echo "❌ ERRO: Uma ou mais Secrets (FTP_SERVER, FTP_USERNAME, FTP_PASSWORD) estão faltando no ambiente 'producao'."
+            echo "👉 Acesse Settings > Environments > producao para configurá-las."
+            exit 1
+          fi
+          echo "✅ Secrets validadas com sucesso. Iniciando o deploy..."
+          
       # 1. Faz o download do código do seu repositório para o runner
       - name: 🚚 Obter o código do projeto
         uses: actions/checkout@v4
@@ -76,6 +86,16 @@ jobs:
     environment: homologacao
     
     steps:
+      # 0. Valida se as secrets foram preenchidas no repositório
+      - name: 🔒 Validar Secrets do Ambiente
+        run: |
+          if [ -z "${{ secrets.FTP_SERVER }}" ] || [ -z "${{ secrets.FTP_USERNAME }}" ] || [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
+            echo "❌ ERRO: Uma ou mais Secrets (FTP_SERVER, FTP_USERNAME, FTP_PASSWORD) estão faltando no ambiente 'homologacao'."
+            echo "👉 Acesse Settings > Environments > homologacao para configurá-las."
+            exit 1
+          fi
+          echo "✅ Secrets validadas com sucesso. Iniciando o deploy..."
+          
       # 1. Faz o download do código do seu repositório para o runner
       - name: 🚚 Obter o código do projeto
         uses: actions/checkout@v4
