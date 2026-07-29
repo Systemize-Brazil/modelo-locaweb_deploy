@@ -1,0 +1,114 @@
+# Nome do Workflow
+name: Deploy Locaweb
+
+# Gatilhos que iniciam o workflow
+on:
+  push:
+      branches:
+        - main      # Branch de Produção
+        - homologacao      # Branch de Homologação
+  # Permite a execução manual a partir da interface do GitHub
+  workflow_dispatch:
+    inputs:
+      ambiente:
+        description: 'Qual ambiente você deseja atualizar?'
+        required: true
+        default: 'homologacao'
+        type: choice
+        options:
+          - homologacao
+          - producao
+jobs:
+  deploy_producao:
+    name: 🚀 Deploy para a Locaweb em Produção
+    # Só roda se o push for na branch 'main' (ou 'master')
+    if: inputs.ambiente == 'producao' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    # Define o ambiente no GitHub
+    environment: producao
+    
+    steps:
+      # 1. Faz o download do código do seu repositório para o runner
+      - name: 🚚 Obter o código do projeto
+        uses: actions/checkout@v4
+        with:
+          # É recomendado fazer o fetch de todos os commits para que a action de deploy 
+          # consiga calcular corretamente os arquivos alterados e enviar apenas eles.
+          fetch-depth: 2 
+
+      # 2. Executa a action de deploy
+      - name: 📂 Sincronizar arquivos para o servidor
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          # URL ou IP do servidor FTP (Configure em Secrets)
+          server: ${{ secrets.FTP_SERVER }}
+          
+          # Usuário e Senha do FTP (Configure em Secrets)
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          
+          # Força o uso de conexão (FTP)
+          protocol: ftp
+          
+          # Diretório destino no servidor (Geralmente public_html na Locaweb. Mantenha a barra no final!)
+          server-dir: /public_html/
+          
+          # NOME PERSONALIZADO PARA O ARQUIVO DE ESTADO
+          state-name: .estado-deploy-producao.json
+          
+          # Arquivos e pastas para ignorar no deploy
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.github/**
+            README.md
+            .gitignore
+            
+  deploy_homologacao:
+    name: 🧪 Deploy para a Locaweb em Homologação
+    # Só roda se o push for na branch 'main' (ou 'master')
+    if: inputs.ambiente == 'homologacao' || github.ref == 'refs/heads/homologacao'
+    runs-on: ubuntu-latest
+    
+    # Define o ambiente no GitHub
+    environment: homologacao
+    
+    steps:
+      # 1. Faz o download do código do seu repositório para o runner
+      - name: 🚚 Obter o código do projeto
+        uses: actions/checkout@v4
+        with:
+          # É recomendado fazer o fetch de todos os commits para que a action de deploy 
+          # consiga calcular corretamente os arquivos alterados e enviar apenas eles.
+          fetch-depth: 2 
+
+      # 2. Executa a action de deploy
+      - name: 📂 Sincronizar arquivos para o servidor
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          # URL ou IP do servidor FTP (Configure em Secrets)
+          server: ${{ secrets.FTP_SERVER }}
+          
+          # Usuário e Senha do FTP (Configure em Secrets)
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          
+          # Força o uso de conexão (FTP)
+          protocol: ftp
+          
+          # Diretório destino no servidor (Geralmente public_html na Locaweb. Mantenha a barra no final!)
+          server-dir: /public_html/
+          
+          # NOME PERSONALIZADO PARA O ARQUIVO DE ESTADO
+          state-name: .estado-deploy-homologacao.json
+          
+          # Arquivos e pastas para ignorar no deploy
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.github/**
+            README.md
+            .gitignore           
