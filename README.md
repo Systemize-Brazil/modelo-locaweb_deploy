@@ -96,7 +96,8 @@ rm composer-setup.php
 ```bash
 chmod +x /home/{usuario_ftp}/bin/composer
 source ~/.bashrc
-alias composer='php /home/{usuario_ftp}/bin/composer'
+alias composer="php85 -d disable_functions='' /home/{usuario_ftp}/bin/composer"
+
 ```
 
 Pronto! Agora você pode navegar até a pasta do seu projeto (cd ~/public_html) e utilizar o comando composer normalmente.
