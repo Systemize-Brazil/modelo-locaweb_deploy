@@ -65,3 +65,38 @@ Para que esse workflow funcione perfeitamente, você deve configurar os *Environ
    - `FTP_PASSWORD`: A senha do FTP.
 
 > 💡 **Nota:** Como os secrets estão separados por ambiente (`environment: producao` e `environment: homologacao`), você pode usar credenciais e servidores completamente diferentes para a fase de testes e para a fase de produção, garantindo segurança na separação de dados.
+
+---
+
+## 🐘 Dica Extra: Instalando o Composer na Locaweb
+
+Se o seu projeto requer o gerenciamento de dependências via **Composer** diretamente no servidor, você precisará configurá-lo via SSH. A hospedagem compartilhada da Locaweb pode apresentar problemas com a biblioteca OpenSSL, então utilize os passos abaixo para instalar corretamente:
+
+1. Acesse o seu servidor Locaweb via **SSH**.
+2. Execute a sequência de comandos abaixo para criar a pasta, baixar o instalador e instalar o Composer contornando os erros de TLS:
+
+```bash
+cd ~
+mkdir -p bin
+cd bin
+
+# 1. Baixar o arquivo de instalação diretamente
+curl -sS [https://getcomposer.org/installer](https://getcomposer.org/installer) -o composer-setup.php
+
+# 2. Rodar o instalador utilizando a flag disable-tls (evita crashes da biblioteca OpenSSL)
+php composer-setup.php --disable-tls
+
+# 3. Limpar o arquivo de instalação
+rm composer-setup.php
+
+```
+
+3. Dê a permissão de execução e crie o alias no sistema para facilitar o uso. Atenção: Lembre-se de substituir {usuario_ftp} pelo seu nome de usuário real de FTP/SSH da Locaweb.
+
+```bash
+chmod +x /home/{usuario_ftp}/bin/composer
+source ~/.bashrc
+alias composer='php /home/{usuario_ftp}/bin/composer'
+```
+
+Pronto! Agora você pode navegar até a pasta do seu projeto (cd ~/public_html) e utilizar o comando composer normalmente.
